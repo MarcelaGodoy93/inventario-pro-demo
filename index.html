@@ -1312,8 +1312,9 @@
             );
         }
 
-        // Renderizar la aplicación
-        ReactDOM.render(<App />, document.getElementById('root'));
+        // Renderizar la aplicación (compatible con React 18)
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
