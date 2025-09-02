@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InventarioPro - Sistema Profesional de Inventario</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -81,7 +80,7 @@
             font-weight: 500;
         }
 
-        .form-group input {
+        .form-group input, select {
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e1e5f2;
@@ -90,7 +89,7 @@
             transition: border-color 0.3s ease;
         }
 
-        .form-group input:focus {
+        .form-group input:focus, select:focus {
             outline: none;
             border-color: #1976d2;
         }
@@ -364,6 +363,19 @@
         .stat-low { background: #f57c00; }
         .stat-users { background: #7b1fa2; }
 
+        .chart-placeholder {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 1.1rem;
+        }
+
         .charts-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
@@ -539,7 +551,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect } = React;
 
         // Datos simulados
         const DEMO_USERS = [
@@ -566,8 +578,6 @@
                 const saved = localStorage.getItem('inventario_pro_products');
                 return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
             });
-            const [showProductModal, setShowProductModal] = useState(false);
-            const [editingProduct, setEditingProduct] = useState(null);
 
             useEffect(() => {
                 localStorage.setItem('inventario_pro_products', JSON.stringify(products));
@@ -775,9 +785,6 @@
 
         // Componente Dashboard
         function Dashboard({ products }) {
-            const chartRef = useRef(null);
-            const pieChartRef = useRef(null);
-
             const stats = {
                 totalProducts: products.length,
                 totalValue: products.reduce((sum, p) => sum + (p.quantity * p.price), 0),
@@ -792,59 +799,6 @@
                     minimumFractionDigits: 0
                 }).format(value);
             };
-
-            useEffect(() => {
-                // Gráfico de líneas
-                if (chartRef.current) {
-                    const ctx = chartRef.current.getContext('2d');
-                    new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
-                            datasets: [{
-                                label: 'Ventas',
-                                data: [12, 19, 15, 25, 22, 30],
-                                borderColor: '#1976d2',
-                                backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                                tension: 0.4,
-                                fill: true
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: {
-                                y: { beginAtZero: true }
-                            }
-                        }
-                    });
-                }
-
-                // Gráfico de dona
-                if (pieChartRef.current) {
-                    const ctx = pieChartRef.current.getContext('2d');
-                    const categories = products.reduce((acc, product) => {
-                        acc[product.category] = (acc[product.category] || 0) + 1;
-                        return acc;
-                    }, {});
-
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: Object.keys(categories),
-                            datasets: [{
-                                data: Object.values(categories),
-                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false
-                        }
-                    });
-                }
-            }, [products]);
 
             return (
                 <div className="fade-in">
@@ -886,14 +840,14 @@
                     <div className="charts-grid">
                         <div className="chart-card">
                             <h3>Tendencia de Ventas</h3>
-                            <div style={{height: '300px'}}>
-                                <canvas ref={chartRef}></canvas>
+                            <div className="chart-placeholder">
+                                📈 Gráfico de ventas en tiempo real
                             </div>
                         </div>
                         <div className="chart-card">
                             <h3>Productos por Categoría</h3>
-                            <div style={{height: '300px'}}>
-                                <canvas ref={pieChartRef}></canvas>
+                            <div className="chart-placeholder">
+                                🍩 Distribución por categorías
                             </div>
                         </div>
                     </div>
@@ -1312,9 +1266,9 @@
             );
         }
 
-        // Renderizar la aplicación (compatible con React 18)
+        // Renderizar la aplicación
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(React.createElement(App));
     </script>
 </body>
 </html>
